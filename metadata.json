@@ -1,0 +1,6 @@
+{
+  "name": "RuangTenang DVC Wireframe Studio",
+  "description": "Aplikasi studi kasus DVC (Digital Visual Communication) Sesi 1–4 untuk wireframing kesehatan mental mahasiswa dengan prinsip CRAP, user flow, dan sistem komponen.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

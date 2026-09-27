@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 560" fill="none">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&amp;display=swap');
+      .brand-title {
+        font-family: 'Comfortaa', cursive, system-ui, sans-serif;
+        font-weight: 700;
+        font-size: 58px;
+        fill: #1C3524;
+        text-anchor: middle;
+      }
+    </style>
+    <linearGradient id="crescentGrad" x1="120" y1="360" x2="360" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#C4DDC7" />
+      <stop offset="100%" stop-color="#EBF4EC" />
+    </linearGradient>
+  </defs>
+
+  <!-- Group centered emblem -->
+  <g transform="translate(10, 0)">
+    <!-- Crescent Moon -->
+    <path
+      d="M 282 48 C 182 54 102 132 96 244 C 90 355 180 430 312 414 C 362 408 402 384 416 372 C 326 412 206 378 162 298 C 122 228 148 132 282 48 Z"
+      fill="url(#crescentGrad)"
+      stroke="#1C3524"
+      stroke-width="16"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+    <!-- Moon Craters -->
+    <circle cx="162" cy="270" r="7" fill="#1C3524" />
+    <circle cx="180" cy="312" r="8.5" fill="#1C3524" />
+
+    <!-- Sparkle Star (Upper Right) -->
+    <path
+      d="M 370 132 Q 370 159 397 159 Q 370 159 370 186 Q 370 159 343 159 Q 370 159 370 132 Z"
+      fill="#1C3524"
+    />
+    <!-- Sparkle Dots -->
+    <circle cx="328" cy="120" r="6.5" fill="#1C3524" />
+    <circle cx="382" cy="278" r="6.5" fill="#1C3524" />
+
+    <!-- Meditating Character -->
+    <!-- Bun -->
+    <ellipse cx="292" cy="158" rx="24" ry="26" fill="#648870" stroke="#1C3524" stroke-width="14" />
+    <ellipse cx="292" cy="180" rx="15" ry="6" fill="#C4DDC7" stroke="#1C3524" stroke-width="11" />
+
+    <!-- Hair Silhouette -->
+    <path
+      d="M 292 180 C 270 192 242 222 248 262 C 252 292 278 292 278 278 C 278 248 272 228 292 214 C 312 228 306 248 306 278 C 306 292 332 292 336 262 C 342 222 314 192 292 180 Z"
+      fill="#648870"
+      stroke="#1C3524"
+      stroke-width="14"
+      stroke-linejoin="round"
+    />
+
+    <!-- Serene Face -->
+    <path
+      d="M 274 222 C 274 258 282 276 292 276 C 302 276 310 258 310 222 C 302 214 282 214 274 222 Z"
+      fill="#F9F4EB"
+      stroke="#1C3524"
+      stroke-width="11"
+      stroke-linecap="round"
+    />
+
+    <!-- Robe / Torso -->
+    <path
+      d="M 282 278 C 272 290 258 306 254 330 L 330 330 C 326 306 312 290 302 278 Z"
+      fill="#8EAE96"
+      stroke="#1C3524"
+      stroke-width="14"
+      stroke-linejoin="round"
+    />
+
+    <!-- Left Arm & Gyan Mudra Hand -->
+    <path
+      d="M 258 298 L 228 340 C 218 354 206 352 204 340 C 200 328 212 324 224 334"
+      fill="#F9F4EB"
+      stroke="#1C3524"
+      stroke-width="13"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+    <!-- Right Arm & Gyan Mudra Hand -->
+    <path
+      d="M 326 298 L 356 340 C 366 354 378 352 380 340 C 384 328 372 324 360 334"
+      fill="#F9F4EB"
+      stroke="#1C3524"
+      stroke-width="13"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+    <!-- Crossed Legs in Lotus -->
+    <ellipse cx="240" cy="352" rx="39" ry="22" transform="rotate(-8 240 352)" fill="#6A8C74" stroke="#1C3524" stroke-width="14" />
+    <ellipse cx="344" cy="352" rx="39" ry="22" transform="rotate(8 344 352)" fill="#6A8C74" stroke="#1C3524" stroke-width="14" />
+    <path d="M 276 358 Q 292 372 308 358" fill="#F9F4EB" stroke="#1C3524" stroke-width="12" stroke-linecap="round" />
+  </g>
+
+  <!-- Brand Typography in Comfortaa -->
+  <text x="250" y="500" class="brand-title">RuangTenang</text>
+</svg>

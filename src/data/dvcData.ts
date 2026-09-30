@@ -83,9 +83,9 @@ export const SCREENS: ScreenData[] = [
     userGoal: "Memilih konselor yang cocok dengan latar belakang masalahnya secara transparan dan membuat janji chat privat tanpa prosedur berbelit.",
     keyComponents: [
       "Filter Topik Masalah (Chips: #Skripsi, #Perantau, #GangguanTidur, #Relasi)",
-      "Kartu Daftar Konselor (Foto siluet anonim/avatar, status online, rating empati, latar belakang fakultas)",
+      "Kartu Daftar Konselor Agent (Avatar inisial, badge Agent Role, status online, rating empati, latar belakang fakultas)",
       "Informasi Garansi Kerahasiaan (Privacy Badge)",
-      "Tombol Jadwalkan Chat / Mulai Sesi Instan"
+      "Aksi Ganda: Chat Langsung (Agent) & Jadwalkan Agenda Sesi Terverifikasi"
     ],
     dvcNotes: [
       {

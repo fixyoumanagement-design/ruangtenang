@@ -10,8 +10,8 @@ import { ConsultationView } from './components/ConsultationView';
 import { ForumView } from './components/ForumView';
 import { SleepView } from './components/SleepView';
 import { SettingsProfileView } from './components/SettingsProfileView';
-import { DvcAssignmentStudio } from './components/DvcAssignmentStudio';
 import { LoginModal, UserProfile } from './components/LoginModal';
+import { OnboardingModal } from './components/OnboardingModal';
 import { RuangTenangLogo } from './components/RuangTenangLogo';
 import { 
   Home, 
@@ -19,21 +19,20 @@ import {
   Users, 
   Moon, 
   PhoneCall, 
-  GraduationCap, 
   Heart, 
   Shield, 
   LogIn, 
   LogOut, 
   User, 
   Settings, 
-  X 
+  X,
+  HelpCircle
 } from 'lucide-react';
 
 export type MainNavPage = 'beranda' | 'konsultasi' | 'forum' | 'tidur' | 'pengaturan';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<MainNavPage>('beranda');
-  const [showAcademicStudio, setShowAcademicStudio] = useState<boolean>(false);
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
     try {
@@ -45,6 +44,13 @@ export default function App() {
   });
   const [showUserDropdown, setShowUserDropdown] = useState<boolean>(false);
   const [showCrisisModal, setShowCrisisModal] = useState<boolean>(false);
+  const [showOnboarding, setShowOnboarding] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('ruangtenang_onboarding_seen') !== 'true';
+    } catch {
+      return false;
+    }
+  });
 
   // Sync user state to localStorage
   const handleSetCurrentUser = (user: UserProfile | null) => {
@@ -81,10 +87,7 @@ export default function App() {
           
           {/* Logo & Brand Identity */}
           <button 
-            onClick={() => {
-              setCurrentPage('beranda');
-              setShowAcademicStudio(false);
-            }}
+            onClick={() => setCurrentPage('beranda')}
             className="flex items-center text-left group shrink-0 transition-opacity hover:opacity-90 cursor-pointer"
             title="Kembali ke Beranda"
           >
@@ -92,8 +95,7 @@ export default function App() {
           </button>
 
           {/* Desktop Navigation Tabs */}
-          {!showAcademicStudio && (
-            <nav className="hidden md:flex items-center space-x-1 bg-[#EBEFEB] p-1 rounded-xl text-xs font-semibold text-[#4A6452]">
+          <nav className="hidden md:flex items-center space-x-1 bg-[#EBEFEB] p-1 rounded-xl text-xs font-semibold text-[#4A6452]">
               <button
                 onClick={() => setCurrentPage('beranda')}
                 className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
@@ -127,7 +129,7 @@ export default function App() {
                 }`}
               >
                 <Users className="w-3.5 h-3.5" />
-                <span>Forum</span>
+                <span>Forum Anonim</span>
               </button>
 
               <button
@@ -139,7 +141,7 @@ export default function App() {
                 }`}
               >
                 <Moon className="w-3.5 h-3.5" />
-                <span>Tidur</span>
+                <span>Track Tidur</span>
               </button>
 
               <button
@@ -154,10 +156,19 @@ export default function App() {
                 <span>Pengaturan</span>
               </button>
             </nav>
-          )}
 
           {/* Right Action Tools (Unified & Responsive) */}
           <div className="flex items-center space-x-2">
+            {/* Onboarding Guide Trigger */}
+            <button
+              onClick={() => setShowOnboarding(true)}
+              className="px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#FAFBF9] border border-[#CCDCCD] text-[#243D2A] hover:bg-[#EAEFEA] transition-all flex items-center space-x-1.5 shadow-2xs cursor-pointer"
+              title="Buka Panduan Pengguna Baru (Onboarding)"
+            >
+              <HelpCircle className="w-3.5 h-3.5 text-[#37523E]" />
+              <span className="hidden sm:inline">Panduan</span>
+            </button>
+
             {/* User Profile / Login */}
             {currentUser ? (
               <div className="relative">
@@ -195,8 +206,18 @@ export default function App() {
 
                     <button
                       onClick={() => {
+                        setShowOnboarding(true);
+                        setShowUserDropdown(false);
+                      }}
+                      className="w-full text-left px-2 py-1.5 text-xs text-[#2F4D36] hover:bg-[#F2F7F2] rounded-lg transition-colors flex items-center space-x-1.5 font-medium cursor-pointer"
+                    >
+                      <HelpCircle className="w-3.5 h-3.5" />
+                      <span>Buka Panduan (Onboarding)</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
                         setCurrentPage('pengaturan');
-                        setShowAcademicStudio(false);
                         setShowUserDropdown(false);
                       }}
                       className="w-full text-left px-2 py-1.5 text-xs text-[#2F4D36] hover:bg-[#F2F7F2] rounded-lg transition-colors flex items-center space-x-1.5 font-medium cursor-pointer"
@@ -241,133 +262,123 @@ export default function App() {
               </button>
             )}
 
-            {/* Crisis SOS Help Trigger */}
+            {/* Crisis SOS Help Trigger (High-Fi Style) */}
             <button
               onClick={() => setShowCrisisModal(true)}
-              className="px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#FAECEB] text-[#9E3631] border border-[#F2CFCC] hover:bg-[#F5DFDD] transition-all flex items-center space-x-1 cursor-pointer"
+              className="px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-semibold bg-[#FAECE8] text-[#A63C2E] border border-[#F2D0C9] hover:bg-[#F5DFDD] transition-all flex items-center space-x-1.5 cursor-pointer shadow-2xs shrink-0"
             >
               <PhoneCall className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Bantuan 24J</span>
-              <span className="sm:hidden">SOS</span>
-            </button>
-
-            {/* DVC Academic Mode Button */}
-            <button
-              onClick={() => setShowAcademicStudio(!showAcademicStudio)}
-              className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-all shadow-2xs cursor-pointer ${
-                showAcademicStudio
-                  ? 'bg-[#213526] text-white ring-2 ring-[#4F7356]'
-                  : 'bg-[#EDF4ED] text-[#2F4D36] border border-[#CCDCCD] hover:bg-[#E0ECE0]'
-              }`}
-            >
-              <GraduationCap className="w-3.5 h-3.5" />
-              <span>{showAcademicStudio ? 'Tutup Tugas' : 'Tugas DVC'}</span>
+              <span className="hidden xs:inline">Bantuan 24/7</span>
+              <span className="xs:hidden">SOS</span>
             </button>
           </div>
         </div>
-
-        {/* Mobile (HP) Navigation Tabs - ALWAYS AT THE TOP, identical to Tablet experience */}
-        {!showAcademicStudio && (
-          <div className="md:hidden px-3 pb-2 pt-1 border-t border-[#E3ECE3]/60 overflow-x-auto scrollbar-none">
-            <nav className="flex items-center space-x-1 bg-[#EBEFEB] p-1 rounded-xl text-xs font-semibold text-[#4A6452] w-full justify-between">
-              <button
-                onClick={() => setCurrentPage('beranda')}
-                className={`flex items-center justify-center space-x-1 px-2.5 py-1.5 rounded-lg transition-all flex-1 text-center whitespace-nowrap ${
-                  currentPage === 'beranda'
-                    ? 'bg-white text-[#253D2C] shadow-xs font-bold'
-                    : 'hover:text-[#1F3325]'
-                }`}
-              >
-                <Home className="w-3.5 h-3.5 shrink-0" />
-                <span className="text-[11px]">Beranda</span>
-              </button>
-
-              <button
-                onClick={() => setCurrentPage('konsultasi')}
-                className={`flex items-center justify-center space-x-1 px-2.5 py-1.5 rounded-lg transition-all flex-1 text-center whitespace-nowrap ${
-                  currentPage === 'konsultasi'
-                    ? 'bg-white text-[#253D2C] shadow-xs font-bold'
-                    : 'hover:text-[#1F3325]'
-                }`}
-              >
-                <MessageSquare className="w-3.5 h-3.5 shrink-0" />
-                <span className="text-[11px]">Konsultasi</span>
-              </button>
-
-              <button
-                onClick={() => setCurrentPage('forum')}
-                className={`flex items-center justify-center space-x-1 px-2.5 py-1.5 rounded-lg transition-all flex-1 text-center whitespace-nowrap ${
-                  currentPage === 'forum'
-                    ? 'bg-white text-[#253D2C] shadow-xs font-bold'
-                    : 'hover:text-[#1F3325]'
-                }`}
-              >
-                <Users className="w-3.5 h-3.5 shrink-0" />
-                <span className="text-[11px]">Forum</span>
-              </button>
-
-              <button
-                onClick={() => setCurrentPage('tidur')}
-                className={`flex items-center justify-center space-x-1 px-2.5 py-1.5 rounded-lg transition-all flex-1 text-center whitespace-nowrap ${
-                  currentPage === 'tidur'
-                    ? 'bg-white text-[#253D2C] shadow-xs font-bold'
-                    : 'hover:text-[#1F3325]'
-                }`}
-              >
-                <Moon className="w-3.5 h-3.5 shrink-0" />
-                <span className="text-[11px]">Tidur</span>
-              </button>
-
-              <button
-                onClick={() => setCurrentPage('pengaturan')}
-                className={`flex items-center justify-center space-x-1 px-2.5 py-1.5 rounded-lg transition-all flex-1 text-center whitespace-nowrap ${
-                  currentPage === 'pengaturan'
-                    ? 'bg-white text-[#253D2C] shadow-xs font-bold'
-                    : 'hover:text-[#1F3325]'
-                }`}
-              >
-                <Settings className="w-3.5 h-3.5 shrink-0" />
-                <span className="text-[11px]">Pengaturan</span>
-              </button>
-            </nav>
-          </div>
-        )}
       </header>
 
       {/* MAIN WEBSITE CONTENT CONTAINER */}
-      <main className="flex-1 max-w-5xl w-full mx-auto p-4 md:p-6 space-y-6">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-3.5 sm:px-6 py-4 md:py-6 pb-28 md:pb-8 space-y-5 sm:space-y-6">
         
-        {/* VIEW 1: DVC ACADEMIC ASSIGNMENT STUDIO (TOGGLED CLEANLY WITHOUT MESSING THE SITE) */}
-        {showAcademicStudio ? (
-          <DvcAssignmentStudio onClose={() => setShowAcademicStudio(false)} />
-        ) : (
-          /* VIEW 2: THE REFINED, CALMING WEBSITE (BERANDA, KONSULTASI, FORUM, TRACK TIDUR) */
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentPage}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            >
-              {currentPage === 'beranda' && (
-                <CalmExperience onNavigate={(page) => setCurrentPage(page)} />
-              )}
-              {currentPage === 'konsultasi' && <ConsultationView />}
-              {currentPage === 'forum' && <ForumView />}
-              {currentPage === 'tidur' && <SleepView />}
-              {currentPage === 'pengaturan' && (
-                <SettingsProfileView
-                  currentUser={currentUser}
-                  onUpdateUser={handleSetCurrentUser}
-                  onOpenLoginModal={() => setShowLoginModal(true)}
-                />
-              )}
-            </motion.div>
-          </AnimatePresence>
-        )}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentPage}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {currentPage === 'beranda' && (
+              <CalmExperience onNavigate={(page) => setCurrentPage(page)} />
+            )}
+            {currentPage === 'konsultasi' && <ConsultationView />}
+            {currentPage === 'forum' && (
+              <ForumView
+                currentUser={currentUser}
+                onOpenCrisisModal={() => setShowCrisisModal(true)}
+                onOpenLoginModal={() => setShowLoginModal(true)}
+                onNavigate={(page) => setCurrentPage(page)}
+              />
+            )}
+            {currentPage === 'tidur' && <SleepView />}
+            {currentPage === 'pengaturan' && (
+              <SettingsProfileView
+                currentUser={currentUser}
+                onUpdateUser={handleSetCurrentUser}
+                onOpenLoginModal={() => setShowLoginModal(true)}
+                onOpenOnboarding={() => setShowOnboarding(true)}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
 
       </main>
+
+      {/* MOBILE MODERN BOTTOM APP BAR (ERGONOMIC NATIVE APP EXPERIENCE FOR HP) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FAFBF9]/95 backdrop-blur-xl border-t border-[#DDE7DE] shadow-[0_-4px_24px_rgba(0,0,0,0.06)] px-2 py-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+        <div className="grid grid-cols-5 gap-1 items-center max-w-md mx-auto">
+          <button
+            onClick={() => setCurrentPage('beranda')}
+            className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition-all ${
+              currentPage === 'beranda'
+                ? 'bg-[#E5EFE6] text-[#1E3B27] font-bold shadow-2xs'
+                : 'text-[#5A7563] hover:text-[#253D2C]'
+            }`}
+          >
+            <Home className="w-5 h-5 mb-0.5" />
+            <span className="text-[10px] tracking-tight">Beranda</span>
+          </button>
+
+          <button
+            onClick={() => setCurrentPage('konsultasi')}
+            className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition-all relative ${
+              currentPage === 'konsultasi'
+                ? 'bg-[#E5EFE6] text-[#1E3B27] font-bold shadow-2xs'
+                : 'text-[#5A7563] hover:text-[#253D2C]'
+            }`}
+          >
+            <div className="relative">
+              <MessageSquare className="w-5 h-5 mb-0.5" />
+              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            </div>
+            <span className="text-[10px] tracking-tight">Konseling</span>
+          </button>
+
+          <button
+            onClick={() => setCurrentPage('forum')}
+            className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition-all ${
+              currentPage === 'forum'
+                ? 'bg-[#E5EFE6] text-[#1E3B27] font-bold shadow-2xs'
+                : 'text-[#5A7563] hover:text-[#253D2C]'
+            }`}
+          >
+            <Users className="w-5 h-5 mb-0.5" />
+            <span className="text-[10px] tracking-tight">Forum</span>
+          </button>
+
+          <button
+            onClick={() => setCurrentPage('tidur')}
+            className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition-all ${
+              currentPage === 'tidur'
+                ? 'bg-[#E5EFE6] text-[#1E3B27] font-bold shadow-2xs'
+                : 'text-[#5A7563] hover:text-[#253D2C]'
+            }`}
+          >
+            <Moon className="w-5 h-5 mb-0.5" />
+            <span className="text-[10px] tracking-tight">Tidur</span>
+          </button>
+
+          <button
+            onClick={() => setCurrentPage('pengaturan')}
+            className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition-all ${
+              currentPage === 'pengaturan'
+                ? 'bg-[#E5EFE6] text-[#1E3B27] font-bold shadow-2xs'
+                : 'text-[#5A7563] hover:text-[#253D2C]'
+            }`}
+          >
+            <Settings className="w-5 h-5 mb-0.5" />
+            <span className="text-[10px] tracking-tight">Akun</span>
+          </button>
+        </div>
+      </nav>
 
       {/* 24-HOUR EMERGENCY CRISIS MODAL (HUMAN, GENTLE & COMPASSIONATE) */}
       {showCrisisModal && (
@@ -443,6 +454,13 @@ export default function App() {
           handleSetCurrentUser(user);
           setShowLoginModal(false);
         }}
+      />
+
+      {/* ONBOARDING MODAL (PANDUAN PENGGUNA BARU) */}
+      <OnboardingModal
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+        onNavigate={(page) => setCurrentPage(page)}
       />
 
       {/* Minimal Calming Footer */}

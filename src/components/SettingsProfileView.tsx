@@ -21,12 +21,14 @@ interface SettingsProfileViewProps {
   currentUser: UserProfile | null;
   onUpdateUser: (user: UserProfile | null) => void;
   onOpenLoginModal: () => void;
+  onOpenOnboarding?: () => void;
 }
 
 export const SettingsProfileView: React.FC<SettingsProfileViewProps> = ({
   currentUser,
   onUpdateUser,
-  onOpenLoginModal
+  onOpenLoginModal,
+  onOpenOnboarding
 }) => {
   const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'preferences'>('profile');
 
@@ -546,6 +548,28 @@ export const SettingsProfileView: React.FC<SettingsProfileViewProps> = ({
                 <option value="id">Bahasa Indonesia</option>
                 <option value="en">English (US)</option>
               </select>
+            </div>
+          </div>
+
+          {/* PANDUAN APLIKASI (ONBOARDING) */}
+          <div className="p-6 rounded-3xl bg-white border border-[#E3ECE3] shadow-xs space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="font-bold text-sm text-[#1E2E23]">Panduan Pengguna Baru (Onboarding)</h3>
+                <p className="text-xs text-[#5D7A66] mt-0.5">
+                  Buka kembali panduan langkah awal mengenai privasi, layanan utama, dan tips penggunaan RuangTenang.
+                </p>
+              </div>
+
+              {onOpenOnboarding && (
+                <button
+                  type="button"
+                  onClick={onOpenOnboarding}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#EDF4ED] border border-[#CCDCCD] text-[#243D2A] hover:bg-[#DFECDF] transition-all cursor-pointer whitespace-nowrap self-start sm:self-auto"
+                >
+                  Buka Panduan Awal
+                </button>
+              )}
             </div>
           </div>
 

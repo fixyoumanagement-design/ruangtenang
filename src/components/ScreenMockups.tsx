@@ -392,7 +392,7 @@ export const ScreenMockups: React.FC<ScreenMockupsProps> = ({
                 
                 {[
                   {
-                    name: "Nabila, S.Psi (Peer Supporter)",
+                    name: "Nabila, S.Psi (Peer Support Agent)",
                     faculty: "Alumni Psikologi · Konselor Sebaya Terlatih",
                     specialty: "Spesialisasi: Burnout Skripsi & Perfeksionisme",
                     rating: "4.9 (84 sesi)",
@@ -400,20 +400,28 @@ export const ScreenMockups: React.FC<ScreenMockupsProps> = ({
                     isOnline: true
                   },
                   {
-                    name: "Dimas Arya (Konselor Mahasiswa)",
-                    faculty: "Fakultas Teknik · Mahasiswa Perantau",
+                    name: "Dimas Arya (Student Peer Agent)",
+                    faculty: "Fakultas Teknik · Mahasiswa Perantau Senior",
                     specialty: "Spesialisasi: Homesick, Adaptasi Rantau, Isolasi Sosial",
                     rating: "4.8 (62 sesi)",
                     status: "Tersedia Malam Ini (19.00 - 21.00)",
                     isOnline: true
                   },
                   {
-                    name: "dr. Sarah Sp.KJ (Konsultan Medis)",
+                    name: "dr. Sarah Sp.KJ (Clinical & Sleep Agent)",
                     faculty: "Layanan Kesehatan Kampus",
-                    specialty: "Spesialisasi: Gangguan Tidur Kronis & Kecemasan Klinis",
+                    specialty: "Spesialisasi: Gangguan Tidur Kronis & Regulasi Fisik",
                     rating: "5.0 (120 sesi)",
-                    status: "Besok (09.00 - 12.00)",
-                    isOnline: false
+                    status: "Tersedia Besok (09.00 - 12.00)",
+                    isOnline: true
+                  },
+                  {
+                    name: "Maya Safira, M.Psi (Relationship Agent)",
+                    faculty: "Magister Psikologi · Spesialis Dinamika Relasi",
+                    specialty: "Spesialisasi: Ekspektasi Keluarga & Relasi Mahasiswa",
+                    rating: "4.9 (95 sesi)",
+                    status: "Tersedia Hari Ini (15.30 - 18.00)",
+                    isOnline: true
                   }
                 ].map((c, idx) => (
                   <div
@@ -455,7 +463,6 @@ export const ScreenMockups: React.FC<ScreenMockupsProps> = ({
                         100% Subsidi Kampus
                       </span>
                       <button 
-                        onClick={() => alert(`Memulai alur reservasi chat privat dengan ${c.name}. Identitasmu terlindungi secara anonim.`)}
                         className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
                           isLoFi 
                             ? 'bg-neutral-900 text-white hover:bg-neutral-800' 

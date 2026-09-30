@@ -1,0 +1,111 @@
+[
+  {
+    "id": "post-1790788691064-744",
+    "alias": "Anak Rantau Kosan (#Mhs-52)",
+    "authorToken": "test-token-device-abc",
+    "isAnonymous": true,
+    "isVerified": false,
+    "time": "Baru saja",
+    "createdAt": 1790788691064,
+    "tag": "#CurhatKampus",
+    "content": "Ada yang ketinggalan flashdisk di lab gak? Hubungi [Nomor Disensor Demi Privasi] ya",
+    "likes": 0,
+    "commentsCount": 0,
+    "likedByTokens": [],
+    "replies": []
+  },
+  {
+    "id": "post-1790788691054-968",
+    "alias": "Pejuang Skripsi (#Mhs-20)",
+    "authorToken": "test-token-device-abc",
+    "isAnonymous": true,
+    "isVerified": false,
+    "time": "Baru saja",
+    "createdAt": 1790788691054,
+    "tag": "#BebanTugas",
+    "content": "Halo kawan-kawan, malam ini perpus kampus sejuk banget buat ngerjain tugas bareng.",
+    "likes": 1,
+    "commentsCount": 0,
+    "likedByTokens": [
+      "user-supporter-1"
+    ],
+    "replies": []
+  },
+  {
+    "id": "post-seed-1",
+    "alias": "Anonim Pejuang Bab 4 (#Mhs-44)",
+    "authorToken": "seed-author-1",
+    "isAnonymous": true,
+    "isVerified": false,
+    "time": "15 menit lalu",
+    "createdAt": 1790787783530,
+    "tag": "#PejuangSkripsi",
+    "content": "Sudah seminggu revisian gak dibalas dosen pembimbing, tidur jam 3 pagi karena kepikiran terus. Ada yang ngerasain hal yang sama? Rasanya stuck tapi masih pengen berjuang buat ortu di kampung :)",
+    "likes": 34,
+    "commentsCount": 2,
+    "likedByTokens": [],
+    "replies": [
+      {
+        "id": "reply-seed-1",
+        "author": "Mahasiswa Angkatan 2021",
+        "isVerified": true,
+        "isAnonymous": false,
+        "authorToken": "seed-reply-1",
+        "text": "Semangat kawan! Dospem aku juga pernah 2 minggu gak balas. Coba follow up dengan sopan di jam kerja ya, biasanya mereka banyak rapat.",
+        "time": "10 menit lalu",
+        "createdAt": 1790788083530
+      },
+      {
+        "id": "reply-seed-2",
+        "author": "Anonim Penunggu Perpus",
+        "isVerified": false,
+        "isAnonymous": true,
+        "authorToken": "seed-reply-2",
+        "text": "Sama banget! Jangan lupa istirahat kawan, jangan begadang tiap hari. Naskah penting, tapi kesehatanmu nomor satu.",
+        "time": "5 menit lalu",
+        "createdAt": 1790788383530
+      }
+    ]
+  },
+  {
+    "id": "post-seed-2",
+    "alias": "Anak Rantau Kosan (#Mhs-89)",
+    "authorToken": "seed-author-2",
+    "isAnonymous": true,
+    "isVerified": false,
+    "time": "1 jam lalu",
+    "createdAt": 1790785083530,
+    "tag": "#AnakRantau",
+    "content": "Pertama kali sakit tipes sendirian di kosan. Kangen masakan ibu & gak berani cerita ke rumah takut ortu cemas. Makasih banyak buat teman-teman di sini yang sudah saling menguatkan.",
+    "likes": 82,
+    "commentsCount": 1,
+    "likedByTokens": [],
+    "replies": [
+      {
+        "id": "reply-seed-3",
+        "author": "Kak Jeff (Konselor Sebaya)",
+        "isVerified": true,
+        "isAnonymous": false,
+        "authorToken": "seed-reply-3",
+        "text": "Cepat pulih kawan. Jangan sungkan kontak tim medis kampus atau minta tolong tetangga kosan buat beli obat ya.",
+        "time": "45 menit lalu",
+        "createdAt": 1790785983530
+      }
+    ]
+  },
+  {
+    "id": "post-seed-3",
+    "alias": "Pejuang Semhas (#Mhs-12)",
+    "authorToken": "seed-author-3",
+    "isAnonymous": true,
+    "isVerified": false,
+    "time": "3 jam lalu",
+    "createdAt": 1790777883530,
+    "tag": "#MentalHealthKampus",
+    "content": "Kalian kalau lagi overthinking masa depan habis lulus biasanya ngapain? Rasanya teman-teman seangkatan udah pada magang keren, sedangkan aku masih bingung nentuin judul.",
+    "likes": 56,
+    "commentsCount": 0,
+    "likedByTokens": [],
+    "replies": []
+  }
+]

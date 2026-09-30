@@ -1,419 +1,359 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Moon, 
-  Sparkles, 
   Clock, 
   Volume2, 
   VolumeX, 
-  Bed, 
-  Activity,
+  Headphones, 
+  CheckCircle2, 
   AlertCircle,
-  CheckCircle2,
-  Trash2,
-  Download,
-  Calendar
+  Play,
+  Square
 } from 'lucide-react';
-import { audioCalm } from '../utils/audioCalm';
+import { playCalmingRain, stopCalmingAudio } from '../utils/audioCalm';
 
-export interface SleepLog {
+export interface SleepRecord {
   id: string;
   date: string;
-  dayName: string;
   startTime: string;
   wakeTime: string;
-  totalMinutes: number;
-  durationHours: number;
-  durationText: string;
-  status: 'optimal' | 'cukup' | 'kurang';
-  note?: string;
+  totalText: string;
+  totalHours: number;
+  quality: 'Kurang' | 'Cukup' | 'Optimal';
 }
 
-const DEFAULT_LOGS: SleepLog[] = [
-  { id: '1', date: '21 Sep 2026', dayName: 'Sen', startTime: '02:30', wakeTime: '07:00', totalMinutes: 270, durationHours: 4.5, durationText: '4 Jam 30 Menit', status: 'kurang' },
-  { id: '2', date: '22 Sep 2026', dayName: 'Sel', startTime: '02:00', wakeTime: '07:00', totalMinutes: 300, durationHours: 5.0, durationText: '5 Jam 00 Menit', status: 'kurang' },
-  { id: '3', date: '23 Sep 2026', dayName: 'Rab', startTime: '03:00', wakeTime: '07:00', totalMinutes: 240, durationHours: 4.0, durationText: '4 Jam 00 Menit', status: 'kurang' },
-  { id: '4', date: '24 Sep 2026', dayName: 'Kam', startTime: '00:30', wakeTime: '07:00', totalMinutes: 390, durationHours: 6.5, durationText: '6 Jam 30 Menit', status: 'cukup' },
-  { id: '5', date: '25 Sep 2026', dayName: 'Jum', startTime: '01:45', wakeTime: '07:00', totalMinutes: 315, durationHours: 5.2, durationText: '5 Jam 15 Menit', status: 'kurang' },
-  { id: '6', date: '26 Sep 2026', dayName: 'Sab', startTime: '23:30', wakeTime: '07:00', totalMinutes: 450, durationHours: 7.5, durationText: '7 Jam 30 Menit', status: 'optimal' },
-  { id: '7', date: '27 Sep 2026', dayName: 'Min', startTime: '02:00', wakeTime: '07:00', totalMinutes: 300, durationHours: 5.0, durationText: '5 Jam 00 Menit', status: 'kurang' }
+const HIGH_FI_SLEEP_RECORDS: SleepRecord[] = [
+  { id: '1', date: '18 Sep 2026', startTime: '05:10', wakeTime: '09:10', totalText: '4j 00m', totalHours: 4.0, quality: 'Kurang' },
+  { id: '2', date: '19 Sep 2026', startTime: '04:00', wakeTime: '08:00', totalText: '4j 00m', totalHours: 4.0, quality: 'Kurang' },
+  { id: '3', date: '20 Sep 2026', startTime: '02:30', wakeTime: '07:00', totalText: '4j 30m', totalHours: 4.5, quality: 'Kurang' },
+  { id: '4', date: '21 Sep 2026', startTime: '02:00', wakeTime: '07:00', totalText: '5j 00m', totalHours: 5.0, quality: 'Kurang' },
+  { id: '5', date: '22 Sep 2026', startTime: '03:00', wakeTime: '07:00', totalText: '4j 00m', totalHours: 4.0, quality: 'Kurang' },
+  { id: '6', date: '23 Sep 2026', startTime: '00:30', wakeTime: '07:00', totalText: '6j 30m', totalHours: 6.5, quality: 'Cukup' },
+  { id: '7', date: '24 Sep 2026', startTime: '01:45', wakeTime: '07:45', totalText: '6j 00m', totalHours: 6.0, quality: 'Cukup' },
+  { id: '8', date: '25 Sep 2026', startTime: '23:30', wakeTime: '07:00', totalText: '7j 30m', totalHours: 7.5, quality: 'Optimal' },
+  { id: '9', date: '26 Sep 2026', startTime: '02:00', wakeTime: '07:00', totalText: '5j 00m', totalHours: 5.0, quality: 'Kurang' }
 ];
 
-function calculateSleepDuration(start: string, wake: string): { totalMinutes: number; durationHours: number; durationText: string; status: 'optimal' | 'cukup' | 'kurang' } {
-  const [startH, startM] = start.split(':').map(Number);
-  const [wakeH, wakeM] = wake.split(':').map(Number);
-
-  let startTotal = (startH || 0) * 60 + (startM || 0);
-  let wakeTotal = (wakeH || 0) * 60 + (wakeM || 0);
-
-  if (wakeTotal <= startTotal) {
-    wakeTotal += 24 * 60;
-  }
-
-  const diffMinutes = wakeTotal - startTotal;
-  const hoursOnly = Math.floor(diffMinutes / 60);
-  const minutesOnly = diffMinutes % 60;
-  const durationHours = parseFloat((diffMinutes / 60).toFixed(1));
-
-  let status: 'optimal' | 'cukup' | 'kurang' = 'optimal';
-  if (durationHours < 6) {
-    status = 'kurang';
-  } else if (durationHours < 7) {
-    status = 'cukup';
-  } else {
-    status = 'optimal';
-  }
-
-  const durationText = minutesOnly > 0 
-    ? `${hoursOnly} Jam ${minutesOnly} Menit`
-    : `${hoursOnly} Jam`;
-
-  return { totalMinutes: diffMinutes, durationHours, durationText, status };
-}
-
 export const SleepView: React.FC = () => {
-  const [startTime, setStartTime] = useState<string>('01:30');
-  const [wakeTime, setWakeTime] = useState<string>('07:45');
+  const [wentToSleep, setWentToSleep] = useState<string>('01:30');
+  const [wakeUp, setWakeUp] = useState<string>('09:00');
   const [isPlayingRain, setIsPlayingRain] = useState<boolean>(false);
-  const [recentSavedLog, setRecentSavedLog] = useState<SleepLog | null>(null);
-
-  // Load persistent sleep logs from localStorage
-  const [logs, setLogs] = useState<SleepLog[]>(() => {
+  const [records, setRecords] = useState<SleepRecord[]>(() => {
     try {
-      const stored = localStorage.getItem('ruangtenang_sleep_logs');
+      const stored = localStorage.getItem('ruangtenang_sleep_hifi_records');
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
     } catch {
       // Fallback
     }
-    return DEFAULT_LOGS;
+    return HIGH_FI_SLEEP_RECORDS;
   });
 
-  // Save to localStorage whenever logs state changes
   useEffect(() => {
     try {
-      localStorage.setItem('ruangtenang_sleep_logs', JSON.stringify(logs));
+      localStorage.setItem('ruangtenang_sleep_hifi_records', JSON.stringify(records));
     } catch {
-      // Storage error fallback
+      // Fallback
     }
-  }, [logs]);
+  }, [records]);
 
-  const handleToggleRain = () => {
+  const toggleRain = () => {
     if (isPlayingRain) {
-      audioCalm.stopRain();
+      stopCalmingAudio();
       setIsPlayingRain(false);
     } else {
-      audioCalm.playRain();
-      setIsPlayingRain(true);
+      const ok = playCalmingRain();
+      if (ok) setIsPlayingRain(true);
     }
   };
 
   const handleSaveLog = (e: React.FormEvent) => {
     e.preventDefault();
-    const calculated = calculateSleepDuration(startTime, wakeTime);
+    const [startH, startM] = wentToSleep.split(':').map(Number);
+    const [wakeH, wakeM] = wakeUp.split(':').map(Number);
+    let startTotal = (startH || 0) * 60 + (startM || 0);
+    let wakeTotal = (wakeH || 0) * 60 + (wakeM || 0);
+    if (wakeTotal <= startTotal) wakeTotal += 24 * 60;
 
-    const now = new Date();
-    const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-    const currentDayName = dayNames[now.getDay()];
-    const dateFormatted = `${now.getDate()} ${now.toLocaleString('id-ID', { month: 'short' })} ${now.getFullYear()}`;
+    const diff = wakeTotal - startTotal;
+    const h = Math.floor(diff / 60);
+    const m = diff % 60;
+    const hoursNum = parseFloat((diff / 60).toFixed(1));
 
-    const newEntry: SleepLog = {
+    let quality: 'Kurang' | 'Cukup' | 'Optimal' = 'Kurang';
+    if (hoursNum >= 7) quality = 'Optimal';
+    else if (hoursNum >= 6) quality = 'Cukup';
+
+    const newRecord: SleepRecord = {
       id: Date.now().toString(),
-      date: dateFormatted,
-      dayName: currentDayName,
-      startTime,
-      wakeTime,
-      totalMinutes: calculated.totalMinutes,
-      durationHours: calculated.durationHours,
-      durationText: calculated.durationText,
-      status: calculated.status
+      date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+      startTime: wentToSleep,
+      wakeTime: wakeUp,
+      totalText: `${h}j ${m < 10 ? '0' : ''}${m}m`,
+      totalHours: hoursNum,
+      quality
     };
 
-    setLogs(prev => [newEntry, ...prev]);
-    setRecentSavedLog(newEntry);
-    setTimeout(() => setRecentSavedLog(null), 4500);
+    setRecords([newRecord, ...records]);
   };
 
-  const handleDeleteLog = (id: string) => {
-    setLogs(prev => prev.filter(item => item.id !== id));
-  };
-
-  const handleResetToDefault = () => {
-    setLogs(DEFAULT_LOGS);
-  };
-
-  // 7-day display: pick the last 7 logged entries in chronological order
-  const displayChartData = [...logs].slice(0, 7).reverse();
-  const averageHours = logs.length > 0 
-    ? (displayChartData.reduce((acc, curr) => acc + curr.durationHours, 0) / displayChartData.length).toFixed(1)
-    : '0';
-
-  const isInsomniaRange = Number(averageHours) < 6.0;
+  // Weekly chart bars (Sen, Sel, Rab, Kam, Jum, Sab, Min)
+  const chartDays = [
+    { day: 'Sen', hours: 4.5, percent: 56 },
+    { day: 'Sel', hours: 5.0, percent: 62 },
+    { day: 'Rab', hours: 4.0, percent: 50 },
+    { day: 'Kam', hours: 6.5, percent: 81 },
+    { day: 'Jum', hours: 5.2, percent: 65 },
+    { day: 'Sab', hours: 7.5, percent: 93 },
+    { day: 'Min', hours: 5.0, percent: 62 }
+  ];
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-12">
+    <div className="space-y-6 max-w-4xl mx-auto pb-16">
       
       {/* 
-        HEADER
+        HEADER PERSIS HIGH-FI:
+        Judul: "Tracker Tidur"
+        Subtitle: "Pantau pola tidur harian"
       */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#E3ECE3]">
+      <div className="space-y-1 pb-1">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#162A1D] font-heading">
+          Tracker Tidur
+        </h1>
+        <p className="text-xs sm:text-sm text-[#526F5A]">
+          Pantau pola tidur harian
+        </p>
+      </div>
+
+      {/* 
+        KONTAINER 1: CATAT JAM TIDUR SEMALAM (PERSIS HIGH-FI)
+        Went to sleep (dropdown) | Wake up (dropdown) | [Clock] Simpan Log Tidur
+      */}
+      <section className="bg-white rounded-2xl border border-[#DCE6DD] p-5 sm:p-6 shadow-xs">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-[#35583E] mb-3.5">
+          Catat Jam Tidur Semalam
+        </h2>
+
+        <form onSubmit={handleSaveLog} className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 items-end">
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-[#46654F]">
+              Went to sleep
+            </label>
+            <input
+              type="time"
+              value={wentToSleep}
+              onChange={(e) => setWentToSleep(e.target.value)}
+              className="w-full px-3.5 py-2 rounded-xl bg-[#FAFBF9] border border-[#CCDCCD] text-xs font-semibold text-[#182C1F] focus:outline-none focus:ring-1 focus:ring-[#284332]"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-[#46654F]">
+              Wake up
+            </label>
+            <input
+              type="time"
+              value={wakeUp}
+              onChange={(e) => setWakeUp(e.target.value)}
+              className="w-full px-3.5 py-2 rounded-xl bg-[#FAFBF9] border border-[#CCDCCD] text-xs font-semibold text-[#182C1F] focus:outline-none focus:ring-1 focus:ring-[#284332]"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full inline-flex items-center justify-center space-x-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-[#284332] text-white hover:bg-[#1E3426] transition-all cursor-pointer shadow-2xs"
+          >
+            <Clock className="w-3.5 h-3.5" />
+            <span>Simpan Log Tidur</span>
+          </button>
+        </form>
+      </section>
+
+      {/* 
+        KONTAINER 2: SLEEP QUALITY (PERSIS HIGH-FI)
+        Title: Sleep Quality
+        Badge kanan: "Kurang Tidur (Perlu Istirahat)"
+        Subtitle: "Avg: 4.7 jam/malam (Defisit 2.3 jam dari standar sehat 7-8 jam)"
+        Weekly Chart + Target 7-8 jam + Pemicu dominan
+      */}
+      <section className="bg-white rounded-2xl border border-[#DCE6DD] p-5 sm:p-6 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 className="text-base sm:text-lg font-bold text-[#162A1D] font-heading">
+              Sleep Quality
+            </h2>
+            <p className="text-xs text-[#526F5A] mt-0.5">
+              Avg: 4.7 jam/malam (Defisit 2.3 jam dari standar sehat 7-8 jam)
+            </p>
+          </div>
+
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#FAECE8] text-[#A63C2E] border border-[#F2D0C9] self-start sm:self-auto">
+            Kurang Tidur (Perlu Istirahat)
+          </span>
+        </div>
+
+        {/* Bar Chart Sesuai High-Fi */}
+        <div className="pt-3 pb-2 space-y-2">
+          {/* Target line */}
+          <div className="relative border-b-2 border-dashed border-[#8EB095] pb-1 flex justify-between text-[10px] text-[#4A6E53] font-semibold">
+            <span>Target: 7-8 jam</span>
+            <span>Standar Sehat</span>
+          </div>
+
+          {/* 7 Columns */}
+          <div className="grid grid-cols-7 gap-1 sm:gap-2 pt-2 h-36 items-end">
+            {chartDays.map((d, idx) => (
+              <div key={idx} className="flex flex-col items-center h-full justify-end group">
+                <span className="text-[10px] font-bold text-[#35583E] mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {d.hours}j
+                </span>
+                <div 
+                  className={`w-full max-w-[28px] rounded-t-lg transition-all ${
+                    d.hours >= 7 
+                      ? 'bg-[#284332]' 
+                      : d.hours >= 6 
+                      ? 'bg-[#4C7558]' 
+                      : 'bg-[#89AB92]'
+                  }`}
+                  style={{ height: `${Math.min(100, Math.max(20, (d.hours / 8) * 100))}%` }}
+                />
+                <span className="text-[10px] sm:text-[11px] font-semibold text-[#506E58] mt-2">
+                  {d.day}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer note pemicu dominan */}
+        <div className="pt-2 border-t border-[#EDF3ED] text-right">
+          <span className="text-[11px] text-[#698572]">
+            Pemicu dominan: Screen-time & begadang skripsi (71%)
+          </span>
+        </div>
+      </section>
+
+      {/* 
+        KONTAINER 3: RIWAYAT TIDUR (PERSIS HIGH-FI 9 HARI TERCATAT)
+        Tabel 9 baris persis + Card Relaksasi Malam di bawahnya
+      */}
+      <section className="bg-white rounded-2xl border border-[#DCE6DD] p-5 sm:p-6 shadow-xs space-y-4">
         <div>
-          <h2 className="text-lg md:text-xl font-semibold text-[#213728] font-heading">
-            Catatan Jam Tidur
+          <h2 className="text-base sm:text-lg font-bold text-[#162A1D] font-heading">
+            Riwayat Tidur
           </h2>
-          <p className="text-xs text-[#526D5A] mt-0.5">
-            Pantau pola tidur harianmu agar istirahat malam lebih teratur.
+          <p className="text-xs text-[#526F5A] mt-0.5">
+            {records.length} hari tercatat
           </p>
         </div>
 
-        <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#E8EEFA] text-[#344E82] text-xs font-bold border border-[#CCD7EF]">
-          <Moon className="w-3.5 h-3.5 text-[#344E82]" />
-          <span>Pola Istirahat</span>
-        </div>
-      </div>
-
-      {/* 
-        QUICK INPUT BAR (CATAT JAM TIDUR SEMALAM)
-      */}
-      <form onSubmit={handleSaveLog} className="p-5 md:p-6 rounded-3xl backdrop-blur-xl bg-white/80 border border-white/70 shadow-[0_8px_30px_rgba(45,75,54,0.04)] space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="font-bold text-xs uppercase tracking-wider text-[#52735B] flex items-center space-x-2">
-            <Clock className="w-3.5 h-3.5 text-[#4D7356]" />
-            <span>Catat Jam Tidur Semalam</span>
-          </h3>
-          <span className="text-[11px] text-[#698471] font-mono">
-            {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' })}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-          <div>
-            <label className="text-xs text-[#4F6A58] block mb-1 font-semibold">Mulai Tidur</label>
-            <input 
-              type="time" 
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              className="w-full text-xs p-2.5 rounded-xl border border-[#DCE7DC] bg-[#FAFBF9] text-[#1C2D22] focus:outline-none focus:ring-2 focus:ring-[#37523E]/30"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="text-xs text-[#4F6A58] block mb-1 font-semibold">Jam Bangun</label>
-            <input 
-              type="time" 
-              value={wakeTime}
-              onChange={(e) => setWakeTime(e.target.value)}
-              className="w-full text-xs p-2.5 rounded-xl border border-[#DCE7DC] bg-[#FAFBF9] text-[#1C2D22] focus:outline-none focus:ring-2 focus:ring-[#37523E]/30"
-              required
-            />
-          </div>
-
-          <div className="flex items-end">
-            <button 
-              type="submit"
-              className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-[#2D4B36] text-white hover:bg-[#1E3626] transition-all shadow-2xs flex items-center justify-center space-x-2 cursor-pointer"
-            >
-              <CheckCircle2 className="w-4 h-4" />
-              <span>Simpan Log Tidur</span>
-            </button>
-          </div>
-        </div>
-
-        {recentSavedLog && (
-          <div className="p-3.5 rounded-2xl bg-[#EDF7ED] border border-[#CDE5CE] text-xs text-[#1E3D24] flex items-center justify-between animate-in fade-in slide-in-from-top-1">
-            <div className="flex items-center space-x-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>
-                <strong>Log tersimpan:</strong> Durasi tidur semalam <strong>{recentSavedLog.durationText}</strong> ({recentSavedLog.startTime} – {recentSavedLog.wakeTime}). Tersimpan di memori browser.
-              </span>
-            </div>
-            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-              recentSavedLog.status === 'optimal' 
-                ? 'bg-emerald-100 text-emerald-800' 
-                : recentSavedLog.status === 'cukup'
-                  ? 'bg-amber-100 text-amber-800'
-                  : 'bg-rose-100 text-rose-800'
-            }`}>
-              {recentSavedLog.status === 'optimal' ? 'Optimal' : recentSavedLog.status === 'cukup' ? 'Cukup' : 'Kurang'}
-            </span>
-          </div>
-        )}
-      </form>
-
-      {/* 
-        7-DAY SLEEP CHART
-      */}
-      <div className="p-5 md:p-6 rounded-3xl backdrop-blur-xl bg-white/80 border border-white/70 shadow-[0_8px_30px_rgba(45,75,54,0.04)] space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <h3 className="font-semibold text-sm md:text-base text-[#213728] font-heading">
-              Tren Pola Tidur {displayChartData.length} Hari Terakhir
-            </h3>
-            <p className="text-xs text-[#526D5A]">
-              Rata-rata catatan: <strong>{averageHours} Jam</strong> / Malam {Number(averageHours) < 7.0 && `(Defisit ${(7.0 - Number(averageHours)).toFixed(1)} Jam dari standar sehat 7-8 jam)`}
-            </p>
-          </div>
-          <span className={`self-start sm:self-center text-xs font-bold px-3 py-1 rounded-full border ${
-            isInsomniaRange
-              ? 'text-[#8C5E1E] bg-[#FFF5E5] border-[#F8E2C4]'
-              : 'text-[#2D4B36] bg-[#EAF2EA] border-[#CFE1D0]'
-          }`}>
-            {isInsomniaRange ? 'Kurang Tidur (Perlu Istirahat)' : 'Pola Tidur Cukup Terjaga'}
-          </span>
-        </div>
-
-        {/* Bar Graph */}
-        <div className="h-44 flex items-end justify-between pt-6 pb-2 px-3 border-b border-[#E3ECE3] gap-2">
-          {displayChartData.map((bar, idx) => {
-            const heightPercent = Math.min(100, Math.max(15, (bar.durationHours / 9) * 100));
-            const isDeficit = bar.durationHours < 6.0;
-            return (
-              <div key={bar.id || idx} className="flex-1 flex flex-col items-center h-full justify-end group">
-                <span className="text-[10px] text-[#6E8875] mb-1 font-mono">
-                  {bar.durationHours}j
+        {/* Mobile View: Card List (< sm) */}
+        <div className="sm:hidden space-y-2.5">
+          {records.map((r) => (
+            <div key={r.id} className="p-3.5 rounded-xl bg-[#FAFBF9] border border-[#E5ECE5] flex items-center justify-between text-xs">
+              <div className="space-y-1">
+                <span className="font-bold text-[#1A2E20] block">{r.date}</span>
+                <span className="text-[11px] text-[#55735E]">
+                  Pukul {r.startTime} — {r.wakeTime}
                 </span>
-                <div 
-                  style={{ height: `${heightPercent}%` }}
-                  className={`w-full max-w-[42px] rounded-t-xl transition-all ${
-                    isDeficit 
-                      ? 'bg-[#E08A63]/85 hover:bg-[#E08A63]' 
-                      : 'bg-[#2D4B36]/85 hover:bg-[#2D4B36]'
-                  }`}
-                  title={`${bar.dayName} (${bar.date}): ${bar.durationText}`}
-                />
-                <span className="text-xs font-bold text-[#2A4433] mt-2">{bar.dayName}</span>
               </div>
-            );
-          })}
+              <div className="text-right space-y-1">
+                <span className="font-bold text-[#182C1F] block text-sm">{r.totalText}</span>
+                <span 
+                  className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
+                    r.quality === 'Optimal'
+                      ? 'bg-[#E3EFE4] text-[#1F3D27] border border-[#CFDFD1]'
+                      : r.quality === 'Cukup'
+                      ? 'bg-[#FEF3E2] text-[#9A621E] border border-[#F5E2C4]'
+                      : 'bg-[#FAECE8] text-[#A63C2E] border border-[#F2D0C9]'
+                  }`}
+                >
+                  {r.quality}
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* Target line indicator */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-[#5F7C68] pt-1">
-          <div className="flex items-center space-x-2">
-            <span className="w-3 h-1 bg-[#2D4B36] rounded-full inline-block"></span>
-            <span>Target Sehat: 7.0 - 8.0 Jam per Malam</span>
-          </div>
-          <span>Pemicu dominan: Screen-time skripsi & begadang larut malam (71%)</span>
+        {/* Desktop View: Full Table (>= sm) */}
+        <div className="hidden sm:block overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-[#E5ECE5] text-[#55735E] font-semibold">
+                <th className="py-2.5 px-3">Tanggal</th>
+                <th className="py-2.5 px-3">Mulai tidur</th>
+                <th className="py-2.5 px-3">Bangun</th>
+                <th className="py-2.5 px-3">Total</th>
+                <th className="py-2.5 px-3 text-right">Kualitas</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#EDF3ED]">
+              {records.map((r) => (
+                <tr key={r.id} className="hover:bg-[#FAFBF9] transition-colors">
+                  <td className="py-2.5 px-3 font-medium text-[#1A2E20]">{r.date}</td>
+                  <td className="py-2.5 px-3 text-[#4B6754]">{r.startTime}</td>
+                  <td className="py-2.5 px-3 text-[#4B6754]">{r.wakeTime}</td>
+                  <td className="py-2.5 px-3 font-semibold text-[#182C1F]">{r.totalText}</td>
+                  <td className="py-2.5 px-3 text-right">
+                    <span 
+                      className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                        r.quality === 'Optimal'
+                          ? 'bg-[#E3EFE4] text-[#1F3D27] border border-[#CFDFD1]'
+                          : r.quality === 'Cukup'
+                          ? 'bg-[#FEF3E2] text-[#9A621E] border border-[#F5E2C4]'
+                          : 'bg-[#FAECE8] text-[#A63C2E] border border-[#F2D0C9]'
+                      }`}
+                    >
+                      {r.quality}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </div>
 
-      {/* 
-        DAFTAR RIWAYAT LOG TIDUR TERSIMPAN (PERSISTENT HISTORY)
-      */}
-      <div className="p-5 md:p-6 rounded-3xl backdrop-blur-xl bg-white/80 border border-white/70 shadow-[0_8px_30px_rgba(45,75,54,0.04)] space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Activity className="w-4 h-4 text-[#4D7356]" />
-            <h3 className="font-semibold text-sm md:text-base text-[#213728] font-heading">
-              Riwayat Log Tidur Tersimpan ({logs.length} Catatan)
-            </h3>
+        {/* 
+          Banner Relaksasi Malam di Bawah Tabel (Persis High-Fi)
+          "[Headphones] Relaksasi Malam: Suara hujan & mode fokus untuk tidur lebih pulas"
+          Tombol: "Putar Sekarang" / "Hentikan"
+        */}
+        <div className="p-4 rounded-xl bg-[#F4F8F4] border border-[#D5E3D6] flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-3">
+          <div className="flex items-center space-x-2.5">
+            <div className="w-8 h-8 rounded-lg bg-[#E2EFE3] text-[#284332] flex items-center justify-center shrink-0">
+              <Headphones className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-[#182C1F]">
+                Relaksasi Malam
+              </h3>
+              <p className="text-[11px] text-[#55735D]">
+                Suara hujan & mode fokus untuk tidur lebih pulas
+              </p>
+            </div>
           </div>
+
           <button
-            onClick={handleResetToDefault}
-            className="text-[11px] text-[#5F7C68] hover:text-[#213728] underline cursor-pointer"
+            onClick={toggleRain}
+            className="inline-flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#284332] text-white hover:bg-[#1E3426] transition-all cursor-pointer shadow-2xs self-start sm:self-auto shrink-0"
           >
-            Reset Contoh
+            {isPlayingRain ? (
+              <>
+                <Volume2 className="w-3.5 h-3.5 text-emerald-300" />
+                <span>Hentikan</span>
+              </>
+            ) : (
+              <>
+                <Play className="w-3.5 h-3.5 fill-white text-white" />
+                <span>Putar Sekarang</span>
+              </>
+            )}
           </button>
         </div>
 
-        {logs.length === 0 ? (
-          <div className="text-center py-8 text-xs text-[#6B8572] bg-[#FAFBF9] rounded-2xl border border-dashed border-[#D5E2D5]">
-            Belum ada catatan log tidur tersimpan. Silakan isi form di atas dan klik &quot;Simpan Log Tidur&quot;.
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-[#E3ECE3] text-[#5B7563]">
-                  <th className="pb-2 font-semibold">Tanggal</th>
-                  <th className="pb-2 font-semibold">Jam Tidur</th>
-                  <th className="pb-2 font-semibold">Jam Bangun</th>
-                  <th className="pb-2 font-semibold">Durasi</th>
-                  <th className="pb-2 font-semibold">Status</th>
-                  <th className="pb-2 font-semibold text-right">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#EDF3ED]">
-                {logs.slice(0, 10).map((log) => (
-                  <tr key={log.id} className="hover:bg-[#F7FAF7] transition-colors">
-                    <td className="py-2.5 font-medium text-[#213728] flex items-center space-x-1.5">
-                      <span className="w-7 text-[10px] font-bold text-[#5B7563] bg-[#E8EFE8] px-1 py-0.5 rounded text-center">
-                        {log.dayName}
-                      </span>
-                      <span>{log.date}</span>
-                    </td>
-                    <td className="py-2.5 font-mono text-[#4F6A58]">{log.startTime}</td>
-                    <td className="py-2.5 font-mono text-[#4F6A58]">{log.wakeTime}</td>
-                    <td className="py-2.5 font-bold text-[#213728]">{log.durationText}</td>
-                    <td className="py-2.5">
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        log.status === 'optimal'
-                          ? 'bg-[#E2F0E4] text-[#24572D]'
-                          : log.status === 'cukup'
-                            ? 'bg-[#FEF3D6] text-[#7A540E]'
-                            : 'bg-[#FCE8E6] text-[#8C231C]'
-                      }`}>
-                        {log.status === 'optimal' ? 'Optimal (7j+)' : log.status === 'cukup' ? 'Cukup (6-7j)' : 'Kurang (<6j)'}
-                      </span>
-                    </td>
-                    <td className="py-2.5 text-right">
-                      <button
-                        onClick={() => handleDeleteLog(log.id)}
-                        className="p-1 rounded-lg text-[#8A9F8E] hover:text-[#992222] hover:bg-rose-50 transition-colors cursor-pointer"
-                        title="Hapus log ini"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* 
-        RECOMMENDATION CARD
-      */}
-      <div className="p-4 md:p-5 rounded-3xl bg-[#FAFBF9] border border-[#E0ECE0] flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xs">
-        <div className="flex items-center space-x-3.5">
-          <div className="w-10 h-10 rounded-2xl bg-[#E8EEFA] text-[#344E82] flex items-center justify-center font-bold text-sm shrink-0">
-            <Moon className="w-5 h-5" />
-          </div>
-          <div>
-            <h4 className="font-bold text-xs sm:text-sm text-[#1E2E23]">
-              Rekomendasi Relaksasi Sebelum Tidur
-            </h4>
-            <p className="text-xs text-[#556F5D]">
-              Audio Gelombang Theta & Suara Hujan Lembut (Membantu otak masuk ke fase lelap)
-            </p>
-          </div>
-        </div>
-
-        <button 
-          onClick={handleToggleRain}
-          className="self-stretch sm:self-center px-4 py-2 rounded-xl text-xs font-bold bg-[#2D4B36] text-white hover:bg-[#1E3626] transition-all flex items-center justify-center space-x-1.5 shrink-0 cursor-pointer"
-        >
-          {isPlayingRain ? (
-            <>
-              <VolumeX className="w-3.5 h-3.5 text-[#A8D8AC]" />
-              <span>Hentikan Audio</span>
-            </>
-          ) : (
-            <>
-              <Volume2 className="w-3.5 h-3.5" />
-              <span>Putar Audio</span>
-            </>
-          )}
-        </button>
-      </div>
+      </section>
 
     </div>
   );
 };
-

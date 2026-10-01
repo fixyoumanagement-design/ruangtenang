@@ -70,12 +70,12 @@ export default function App() {
     <div className="min-h-screen bg-[#F8FAF8] text-[#1E3024] flex flex-col font-sans selection:bg-[#2C5237] selection:text-white relative">
       
       {/* 
-        AMBIENT PASTEL MESH GRADIENTS (POINT C: SOLMA BENCHMARK FROSTED GLASS ATMOSPHERE)
+        AMBIENT PASTEL MESH GRADIENTS (BEHIND ALL CONTENT WITH -z-10, HIDDEN ON SMALL MOBILE TO PREVENT OVERLAP & SCROLL LAG)
       */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-28 -left-28 w-96 h-96 rounded-full bg-[#D6E8D8]/50 blur-3xl animate-ambient-float-1" />
-        <div className="absolute top-1/3 -right-28 w-96 h-96 rounded-full bg-[#FFE7DC]/50 blur-3xl animate-ambient-float-2" />
-        <div className="absolute -bottom-20 left-1/4 w-[32rem] h-[32rem] rounded-full bg-[#E8EEFA]/45 blur-3xl animate-ambient-float-1" />
+      <div className="fixed inset-0 pointer-events-none touch-none select-none overflow-hidden -z-10 hidden sm:block">
+        <div className="absolute -top-28 -left-28 w-96 h-96 rounded-full bg-[#D6E8D8]/40 blur-3xl animate-ambient-float-1" />
+        <div className="absolute top-1/3 -right-28 w-96 h-96 rounded-full bg-[#FFE7DC]/35 blur-3xl animate-ambient-float-2" />
+        <div className="absolute -bottom-20 left-1/4 w-[32rem] h-[32rem] rounded-full bg-[#E8EEFA]/35 blur-3xl animate-ambient-float-1" />
       </div>
 
       {/* 
